@@ -400,6 +400,10 @@
   }
   function saveSettings(){
     localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+    // sync ขึ้น Firebase ทุกครั้งที่บันทึกการตั้งค่าร้าน
+    if (typeof window.saveSettingsToFirebase === 'function') {
+      window.saveSettingsToFirebase();
+    }
   }
   function applySettingsToPublicView(){
     document.getElementById('bannerImage').src = settings.banner || DEFAULT_BANNER;
@@ -940,10 +944,10 @@ if (typeof firebase !== 'undefined' && !firebase.apps.length) {
 
 const database = firebase.database();
 
-// 2. ดึงข้อมูลระบบเดิม
+// 2. ดึงข้อมูลระบบเดิม (ใช้เป็นค่าเริ่มต้น/สำรอง ก่อนที่ Firebase จะตอบกลับ)
 loadSettings();
 
-// 3. ดึงและซิงก์ข้อมูลเรียลไทม์จาก Firebase
+// 3. ดึงและซิงก์ข้อมูล "เครดิต/รีวิว" แบบเรียลไทม์จาก Firebase
 database.ref('reviewka_shop1').on('value', (snapshot) => {
   const data = snapshot.val();
   if (data) {
@@ -955,9 +959,29 @@ database.ref('reviewka_shop1').on('value', (snapshot) => {
   if (typeof updateFilterChip === 'function') updateFilterChip();
 });
 
-// 4. ฟังก์ชันบันทึกข้อมูลเข้า Firebase
+// 4. ฟังก์ชันบันทึกข้อมูล "เครดิต/รีวิว" เข้า Firebase
 window.saveToFirebase = function() {
   database.ref('reviewka_shop1').set(state.credits);
+};
+
+// 5. ดึงและซิงก์ "ข้อมูลตั้งค่าร้าน" (banner, ชื่อร้าน, หมวดหมู่, ลิงก์โซเชียล) แบบเรียลไทม์จาก Firebase
+database.ref('reviewka_shop1_settings').on('value', (snapshot) => {
+  const data = snapshot.val();
+  if (data) {
+    settings = { ...settings, ...data };
+    if(!Array.isArray(settings.socialLinks)) settings.socialLinks = [];
+    if(!Array.isArray(settings.categories) || settings.categories.length === 0) settings.categories = DEFAULT_CATEGORIES.map(c => ({...c}));
+    applySettingsToPublicView();
+    // อัปเดตฟอร์มหลังบ้านด้วย ถ้าจอนี้เปิดหน้าหลังบ้านอยู่ (และไม่ได้กำลังแก้ไข banner ค้างอยู่)
+    if (typeof fillSettingsForm === 'function' && pendingBannerBase64 === null) {
+      fillSettingsForm();
+    }
+  }
+});
+
+// 6. ฟังก์ชันบันทึก "ข้อมูลตั้งค่าร้าน" เข้า Firebase
+window.saveSettingsToFirebase = function() {
+  database.ref('reviewka_shop1_settings').set(settings);
 };
 
 })(); // ปิด Function Scope เดิมของหน้าเว็บ

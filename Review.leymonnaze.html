@@ -923,7 +923,8 @@
   updateFilterChip();
 })();
 </script>
-  <!-- 1. ดึง Firebase SDK -->
+
+<!-- 1. ดึง Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
@@ -943,6 +944,19 @@
   // เริ่มต้นใช้งาน Firebase
   firebase.initializeApp(firebaseConfig);
   const database = firebase.database();
+
+  // ดึงข้อมูลเรียลไทม์จาก Firebase
+  database.ref('reviewka_shop1').on('value', (snapshot) => {
+    const data = snapshot.val();
+    if (data) {
+      console.log("ข้อมูลอัปเดตจาก Firebase:", data);
+    }
+  });
+
+  // ฟังก์ชันสำหรับบันทึกข้อมูลเข้า Firebase
+  function saveToFirebase(newData) {
+    database.ref('reviewka_shop1').set(newData);
+  }
 </script>
 </body>
 </html>

@@ -916,25 +916,31 @@
   }
 
 // ----------- Init & Firebase Connection -----------
-loadSettings();
 
-// 1. ดึงข้อมูลจาก Firebase มาอัปเดตบนหน้าเว็บแบบ Real-time
+// 1. ดึงข้อมูลระบบและตั้งค่าเดิม
+try {
+  if (typeof loadSettings === 'function') loadSettings();
+} catch (e) {
+  console.log('Settings load error:', e);
+}
+
+// 2. ดึงข้อมูลจาก Firebase มาอัปเดตบนหน้าเว็บแบบ Real-time
 database.ref('reviewka_shop1').on('value', (snapshot) => {
   const data = snapshot.val();
   if (data) {
-    state.credits = data; // อัปเดตข้อมูลในระบบด้วยข้อมูลจาก Firebase
+    state.credits = data;
   } else {
-    state.credits = []; // ถ้าไม่มีข้อมูล ให้เป็นอาเรย์ว่าง
+    state.credits = [];
   }
   
-  // เรียกฟังก์ชันวาดหน้าเว็บใหม่ทุกครั้งที่ข้อมูลเปลี่ยน
-  renderHighlights();
-  renderCards();
-  renderAdminTable();
-  updateFilterChip();
+  // อัปเดตหน้าจอทันทีเมื่อข้อมูลเปลี่ยน
+  if (typeof renderHighlights === 'function') renderHighlights();
+  if (typeof renderCards === 'function') renderCards();
+  if (typeof renderAdminTable === 'function') renderAdminTable();
+  if (typeof updateFilterChip === 'function') updateFilterChip();
 });
 
-// 2. ฟังก์ชันบันทึกข้อมูลส่งขึ้น Firebase (ใช้แทนการเซฟลงเครื่อง)
+// 3. ฟังก์ชันบันทึกข้อมูลส่งขึ้น Firebase
 function saveCredits() {
   database.ref('reviewka_shop1').set(state.credits);
 }

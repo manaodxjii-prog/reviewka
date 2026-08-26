@@ -922,6 +922,26 @@
   renderCards();
   updateFilterChip();
 })();
+</script><!-- 1. ดึง Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+<!-- 2. ตั้งค่าและเชื่อมต่อ Realtime Database -->
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyD_Tw-i_ArJHIPDZqDHYoV1p7S541eArR0",
+    authDomain: "reviewka-8da96.firebaseapp.com",
+    databaseURL: "https://reviewka-8da96-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "reviewka-8da96",
+    storageBucket: "reviewka-8da96.firebasestorage.app",
+    messagingSenderId: "530382019795",
+    appId: "1:530382019795:web:b170467392f3b54247c826",
+    measurementId: "G-V6Z46K79R4"
+  };
+
+  // เริ่มต้นใช้งาน Firebase
+  firebase.initializeApp(firebaseConfig);
+  const database = firebase.database();
 </script>
 </body>
 </html>

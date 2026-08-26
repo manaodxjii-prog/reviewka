@@ -915,36 +915,51 @@
     });
   }
 
-// ----------- Init & Firebase Connection -----------
+// ---------- Init & Firebase Integration ----------
 
-// 1. ดึงข้อมูลระบบและตั้งค่าเดิม
-try {
-  if (typeof loadSettings === 'function') loadSettings();
-} catch (e) {
-  console.log('Settings load error:', e);
+// 1. ตั้งค่า Firebase ภายใน Scope เดียวกัน
+if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+  const firebaseConfig = {
+    apiKey: "AIzaSyD_Tw-i_ArJHIPDZqDHYoV1p7S541eArR0",
+    authDomain: "reviewka-8da96.firebaseapp.com",
+    databaseURL: "https://reviewka-8da96-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "reviewka-8da96",
+    storageBucket: "reviewka-8da96.firebasestorage.app",
+    messagingSenderId: "530382019795",
+    appId: "1:530382019795:web:b170467392f3b54247c826",
+    measurementId: "G-V6Z46K79R4"
+  };
+  firebase.initializeApp(firebaseConfig);
 }
 
-// 2. ดึงข้อมูลจาก Firebase มาอัปเดตบนหน้าเว็บแบบ Real-time
+const database = firebase.database();
+
+// 2. ดึงข้อมูลระบบเดิม
+loadSettings();
+
+// 3. ดึงและซิงก์ข้อมูลเรียลไทม์จาก Firebase
 database.ref('reviewka_shop1').on('value', (snapshot) => {
   const data = snapshot.val();
   if (data) {
     state.credits = data;
-  } else {
-    state.credits = [];
   }
-  
-  // อัปเดตหน้าจอทันทีเมื่อข้อมูลเปลี่ยน
-  if (typeof renderHighlights === 'function') renderHighlights();
-  if (typeof renderCards === 'function') renderCards();
+  renderHighlights();
+  renderCards();
   if (typeof renderAdminTable === 'function') renderAdminTable();
   if (typeof updateFilterChip === 'function') updateFilterChip();
 });
 
-// 3. ฟังก์ชันบันทึกข้อมูลส่งขึ้น Firebase
-function saveCredits() {
+// 4. ฟังก์ชันบันทึกข้อมูลเข้า Firebase
+window.saveToFirebase = function() {
   database.ref('reviewka_shop1').set(state.credits);
-}
+};
+
+})(); // ปิด Function Scope เดิมของหน้าเว็บ
 </script>
+
+<!-- โหลด SDK ของ Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
 </body>
 </html>

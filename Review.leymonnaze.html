@@ -354,6 +354,10 @@
   }
   function saveCredits(){
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state.credits));
+    // sync ขึ้น Firebase ทุกครั้งที่บันทึกข้อมูล
+    if (typeof window.saveToFirebase === 'function') {
+      window.saveToFirebase();
+    }
   }
   function cryptoId(){
     return 'c_' + Date.now().toString(36) + Math.random().toString(36).slice(2,8);
